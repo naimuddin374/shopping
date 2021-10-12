@@ -158,7 +158,8 @@ exports.tokenGenerator = async (user) => {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        status: user.status
+        status: user.status,
+        type: user.type,
     }
     try {
         const token = await jwt.sign(obj, config.get('SECRET_KEY'), { expiresIn: '15d' })

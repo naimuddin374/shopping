@@ -33,6 +33,10 @@ const UserSchema = new Schema({
         type: Number,
         default: 1, // 0=INACTIVE, 1=ACTIVE
     },
+    type: {
+        type: Number,
+        default: 1, // 1=CUSTOMER, 2=MODERATOR, 3=ADMINISTRATOR
+    },
 }, { timestamps: true })
 
 const User = model('User', UserSchema)

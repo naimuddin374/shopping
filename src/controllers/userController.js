@@ -8,8 +8,8 @@ const { validationError, serverError, createdSuccess, badRequest, actionSuccess,
 // GET LIST
 exports.list = async (req, res) => {
     try {
-        let users = await User.find();
-        return actionSuccess(res, users);
+        let result = await User.find();
+        return actionSuccess(res, result);
     } catch (error) {
         return serverError(res, error);
     }
@@ -50,8 +50,8 @@ exports.insert = async (req, res) => {
 
     try {
         // CHECK EMAIL UNIQUE
-        let findUser = await User.findOne({ email });
-        if (findUser) {
+        let findData = await User.findOne({ email });
+        if (findData) {
             return badRequest(res, null, 'Email address already exist!');
         }
 
@@ -91,9 +91,9 @@ exports.update = async (req, res) => {
 
 
     try {
-        // CHECK EMAIL UNIQUE
-        let findUser = await User.findById(req.params.id);
-        if (!findUser) {
+        // CHECK ID
+        let findData = await User.findById(req.params.id);
+        if (!findData) {
             return badRequest(res, null, 'Content Not Found!');
         }
 
@@ -111,9 +111,9 @@ exports.update = async (req, res) => {
 // DELETE
 exports.remove = async (req, res) => {
     try {
-        // CHECK EMAIL UNIQUE
-        let findUser = await User.findById(req.params.id);
-        if (!findUser) {
+        // CHECK ID
+        let findData = await User.findById(req.params.id);
+        if (!findData) {
             return badRequest(res, null, 'Content Not Found!');
         }
 
@@ -144,8 +144,8 @@ exports.changePassword = async (req, res) => {
 
     try {
         // CHECK EMAIL UNIQUE
-        let findUser = await User.findById(req.params.id);
-        if (!findUser) {
+        let findData = await User.findById(req.params.id);
+        if (!findData) {
             return badRequest(res, null, 'Content Not Found!');
         }
 

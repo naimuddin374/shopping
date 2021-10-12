@@ -4,6 +4,10 @@ const path = require('path')
 
 const routes = [
     {
+        path: '/api/colors',
+        handler: require('./colorRouter')
+    },
+    {
         path: '/api/auth',
         handler: require('./authRouter')
     },
