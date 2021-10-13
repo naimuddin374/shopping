@@ -1,10 +1,11 @@
 const logger = require("./logger")
 const jwt = require('jsonwebtoken');
 const config = require('config');
+const mongoose = require('mongoose')
 
 
 
-exports.actionSuccess = (res, data = null, message = 'Success') => {
+exports.actionSuccess = (res, data = null, message = '') => {
     res.status(200).json({
         message,
         data,
@@ -12,7 +13,7 @@ exports.actionSuccess = (res, data = null, message = 'Success') => {
 }
 
 
-exports.createdSuccess = (res, message = 'Content Created Successful!', data = null) => {
+exports.createdSuccess = (res, data = null, message = 'Content Created Successful!') => {
     res.status(201).json({
         message,
         data,
@@ -169,3 +170,6 @@ exports.tokenGenerator = async (user) => {
         return false;
     }
 }
+
+
+exports.objectIdIsValid = id => mongoose.Types.ObjectId.isValid(id)

@@ -26,8 +26,8 @@ exports.login = async (req, res) => {
             return badRequest(res, null, 'Invalid credentials!');
         }
 
-        let hash = await bcrypt.compare(password, user.password)
-        if (!hash) {
+        let compare = await bcrypt.compare(password, user.password)
+        if (!compare) {
             return badRequest(res, null, 'Invalid credentials!');
         }
 

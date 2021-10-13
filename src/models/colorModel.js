@@ -5,11 +5,6 @@ const ColorSchema = new Schema({
         type: String,
         required: true,
         trim: true
-    },
-    categoryId: {
-        type: Schema.Types.ObjectId,
-        ref: 'Category',
-        required: true,
     }
 }, { timestamps: true })
 

@@ -1,8 +1,19 @@
 const path = require('path')
 
 
-
 const routes = [
+    {
+        path: '/api/subcategories',
+        handler: require('./subCategoryRouter')
+    },
+    {
+        path: '/api/categories',
+        handler: require('./categoryRouter')
+    },
+    {
+        path: '/api/sizes',
+        handler: require('./sizeRouter')
+    },
     {
         path: '/api/colors',
         handler: require('./colorRouter')

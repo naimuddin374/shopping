@@ -61,9 +61,9 @@ exports.insert = async (req, res) => {
         formField.password = hash
 
         // SAVE DATA
-        let user = User(formField);
-        let result = await user.save();
-        return createdSuccess(res, null, result);
+        let schema = new User(formField);
+        let result = await schema.save();
+        return createdSuccess(res, result);
     } catch (error) {
         return serverError(res, error);
     }
@@ -129,10 +129,11 @@ exports.remove = async (req, res) => {
 
 // UPDATE PASSWORD
 exports.changePassword = async (req, res) => {
-    let { password, confirmPassword } = req.body
+    let { password, confirmPassword, oldPassword } = req.body
 
     // CHECK VALIDATION
     const formField = {
+        "oldPassword": oldPassword,
         "password": password,
         "confirmPassword": confirmPassword,
     }
@@ -149,8 +150,16 @@ exports.changePassword = async (req, res) => {
             return badRequest(res, null, 'Content Not Found!');
         }
 
+        // COMPARE PASSWORD 
+        const compare = await bcrypt.compare(oldPassword, findData.password)
+        if (!compare) {
+            return badRequest(res, null, `Password doesn't match!`);
+        }
+
+        const hash = await bcrypt.hash(password, 11)
+
         // UPDATE DATA
-        let result = await User.findByIdAndUpdate(req.params.id, { $set: { password } }, { new: true, useFindAndModify: false })
+        let result = await User.findByIdAndUpdate(req.params.id, { $set: { password: hash } }, { new: true, useFindAndModify: false })
         return updatedSuccess(res, result);
     } catch (error) {
         return serverError(res, error);
