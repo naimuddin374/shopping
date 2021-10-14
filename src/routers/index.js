@@ -3,6 +3,10 @@ const path = require('path')
 
 const routes = [
     {
+        path: '/api/products',
+        handler: require('./productRouter')
+    },
+    {
         path: '/api/subcategories',
         handler: require('./subCategoryRouter')
     },
