@@ -28,6 +28,44 @@ exports.getById = async (req, res) => {
 }
 
 
+// GET BY SUB CATEGORY ID
+exports.getBySubCatId = async (req, res) => {
+    try {
+        let result = await Product.find({ subcategory: req.params.id }).populate('subcategory');
+        return actionSuccess(res, result);
+    } catch (error) {
+        return serverError(res, error);
+    }
+}
+
+
+// GET BY CATEGORY ID
+exports.getByCatId = async (req, res) => {
+    try {
+        let result = await Product.find({ subcategory: { category: req.params.id } }).populate('subcategory');
+        return actionSuccess(res, result);
+    } catch (error) {
+        return serverError(res, error);
+    }
+}
+
+
+// GET BY TITLE
+exports.getBySearch = async (req, res) => {
+    const title = req.query.title || '';
+    const description = req.query.description || '';
+    try {
+        let result = await Product.find({
+            "title": { "$regex": title, "$options": "i" },
+            "description": { "$regex": description, "$options": "i" },
+        }).populate('subcategory');
+        return actionSuccess(res, result);
+    } catch (error) {
+        return serverError(res, error);
+    }
+}
+
+
 
 // INSERT
 exports.insert = async (req, res) => {

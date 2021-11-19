@@ -5,6 +5,7 @@ const Color = require('./colorModel');
 const Size = require('./sizeModel');
 const Comment = require('./commentModel');
 const Product = require('./productModel');
+const Review = require('./reviewModel');
 
 
 module.exports = {
@@ -14,5 +15,6 @@ module.exports = {
     Color,
     Size,
     Comment,
-    Product
+    Product,
+    Review
 }

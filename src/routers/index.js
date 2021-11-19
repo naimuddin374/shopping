@@ -3,6 +3,10 @@ const path = require('path')
 
 const routes = [
     {
+        path: '/api/reviews',
+        handler: require('./reviewRouter')
+    },
+    {
         path: '/api/products',
         handler: require('./productRouter')
     },
