@@ -63,8 +63,9 @@ exports.insert = async (req, res) => {
         }
 
         // SAVE DATA
-        let schema = new SubCategory(formField);
-        let result = await schema.save();
+        const schema = new SubCategory(formField);
+        await schema.save();
+        const result = await SubCategory.findById(schema._id).populate('category');
         return createdSuccess(res, result);
     } catch (error) {
         return serverError(res, error);
@@ -96,7 +97,8 @@ exports.update = async (req, res) => {
         }
 
         // UPDATE DATA
-        let result = await SubCategory.findByIdAndUpdate(req.params.id, { $set: formField }, { new: true, useFindAndModify: false })
+        await SubCategory.findByIdAndUpdate(req.params.id, { $set: formField }, { new: true, useFindAndModify: false });
+        const result = await SubCategory.findById(req.params.id).populate('category');
         return updatedSuccess(res, result);
     } catch (error) {
         return serverError(res, error);

@@ -68,8 +68,9 @@ exports.insert = async (req, res) => {
         // SAVE DATA
         formField.sizes = sizes
         formField.colors = colors
-        let schema = new Product(formField);
-        let result = await schema.save();
+        const schema = new Product(formField);
+        await schema.save();
+        const result = await Product.findById(schema._id).populate('subcategory');
         return createdSuccess(res, result);
     } catch (error) {
         return serverError(res, error);
@@ -106,7 +107,8 @@ exports.update = async (req, res) => {
         // UPDATE DATA
         formField.sizes = sizes
         formField.colors = colors
-        let result = await Product.findByIdAndUpdate(req.params.id, { $set: formField }, { new: true, useFindAndModify: false })
+        await Product.findByIdAndUpdate(req.params.id, { $set: formField }, { new: true, useFindAndModify: false });
+        const result = await Product.findById(req.params.id).populate('subcategory');
         return updatedSuccess(res, result);
     } catch (error) {
         return serverError(res, error);
