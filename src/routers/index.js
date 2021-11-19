@@ -31,14 +31,10 @@ const routes = [
         handler: require('./userRouter')
     },
     {
-        path: '/',
+        path: '*',
         handler: (req, res) => {
-            res.sendFile(path.resolve(__dirname, '../../', 'public', 'index.html'))
+            return res.sendFile(path.resolve(__dirname, '../../', 'public', 'index.html'))
         }
-    },
-    {
-        path: '/',
-        handler: (req, res) => res.send({ response: "Welcome our app" }).status(200)
     },
     {
         path: '*',
