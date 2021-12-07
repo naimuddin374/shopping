@@ -6,6 +6,8 @@ const Size = require('./sizeModel');
 const Comment = require('./commentModel');
 const Product = require('./productModel');
 const Review = require('./reviewModel');
+const Order = require('./orderModel');
+const OrderDetail = require('./orderDetailModel');
 
 
 module.exports = {
@@ -16,5 +18,7 @@ module.exports = {
     Size,
     Comment,
     Product,
-    Review
+    Review,
+    Order,
+    OrderDetail,
 }
