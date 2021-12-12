@@ -9,6 +9,7 @@ const { objectIdIsValid } = require('../utils/helper');
 exports.list = async (req, res) => {
     try {
         let result = await Product.find().populate('subcategory');
+        console.log('OK', result)
         return actionSuccess(res, result);
     } catch (error) {
         return serverError(res, error);

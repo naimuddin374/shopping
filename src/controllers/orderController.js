@@ -82,12 +82,12 @@ exports.insert = async (req, res) => {
             note,
             coupon
         });
-        await schema.save();
+        let result = await schema.save();
 
 
         // SAVE ORDER DETAILS
         selPdt.forEach(item => {
-            let quantity = products.filter(item => item._id === id)[0]?.quantity || 0
+            let quantity = products.filter(p => p._id === item._id)[0]?.quantity || 0
 
             let pdt = new OrderDetail({
                 order: schema._id,
@@ -100,7 +100,7 @@ exports.insert = async (req, res) => {
             pdt.save()
         })
 
-        return createdSuccess(res, null, 'Order created successfully!');
+        return createdSuccess(res, result, 'Order created successfully!');
     } catch (error) {
         return serverError(res, error);
     }
@@ -153,7 +153,7 @@ exports.remove = async (req, res) => {
 
         // UPDATE DATA
         let result = await Order.findByIdAndDelete(req.params.id)
-        let result = await OrderDetail.findOneAndDelete({ order: req.params.id })
+        await OrderDetail.findOneAndDelete({ order: req.params.id })
         return deleteSuccess(res, result);
     } catch (error) {
         return serverError(res, error);
