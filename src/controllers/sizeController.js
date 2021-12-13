@@ -7,7 +7,8 @@ const { validationError, serverError, createdSuccess, badRequest, actionSuccess,
 // GET LIST
 exports.list = async (req, res) => {
     try {
-        let result = await Size.find();
+        console.log('OK')
+        let result = await Size.find().maxTimeMS(100);
         return actionSuccess(res, result);
     } catch (error) {
         return serverError(res, error);
