@@ -20,8 +20,13 @@ exports.list = async (req, res) => {
 // GET BY ID
 exports.getById = async (req, res) => {
     try {
-        let result = await OrderDetail.find({ order: req.params.id }).populate(['product', 'order']);
-        return actionSuccess(res, { order: result, detail });
+        if (!objectIdIsValid(req.params.id)) {
+            return badRequest(res, null, 'Invalid ID!');
+        }
+
+        let order = await Order.findById(req.params.id).populate('user');
+        let orderItem = await OrderDetail.find({ order: req.params.id }).populate('product');
+        return actionSuccess(res, { order, orderItem });
     } catch (error) {
         return serverError(res, error);
     }
