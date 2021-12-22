@@ -55,8 +55,10 @@ exports.insert = async (req, res) => {
         let totalQuantity = 1;
 
         products.forEach(item => {
-            pdtIds.push(item._id)
-            totalQuantity = totalQuantity + item.quantity
+            if (item.quantity > 0) {
+                pdtIds.push(item._id)
+                totalQuantity = totalQuantity + item.quantity
+            }
         })
 
         const selPdt = await Product.find({ $in: pdtIds });
@@ -92,9 +94,9 @@ exports.insert = async (req, res) => {
 
         // SAVE ORDER DETAILS
         selPdt.forEach(item => {
-            let quantity = products.filter(p => p._id === item._id)[0]?.quantity || 0
+            let quantity = products.filter(p => p._id === item._id)[0]?.quantity
 
-            let pdt = new OrderDetail({
+            let orderDetailSchema = new OrderDetail({
                 order: schema._id,
                 product: item._id,
                 price: item.price,
@@ -102,7 +104,7 @@ exports.insert = async (req, res) => {
                 totalPrice: (item.price - item.discount) * Number(quantity),
                 quantity,
             })
-            pdt.save()
+            orderDetailSchema.save()
         })
 
         return createdSuccess(res, result, 'Order created successfully!');
@@ -143,6 +145,7 @@ exports.update = async (req, res) => {
     // } catch (error) {
     //     return serverError(res, error);
     // }
+    return updatedSuccess(res);
 }
 
 

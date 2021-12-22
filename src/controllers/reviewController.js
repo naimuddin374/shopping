@@ -31,15 +31,14 @@ exports.getById = async (req, res) => {
 
 // INSERT
 exports.insert = async (req, res) => {
-    const { comment, rating, product, user } = req.body
+    const { comment, rating, product } = req.body
 
 
     // CHECK VALIDATION
-    const formField = {
+    let formField = {
         "comment": comment,
         "rating": rating,
         "product": product,
-        "user": user,
     }
     const validate = validator(formField);
     if (!validate.isValid) {
@@ -69,7 +68,7 @@ exports.insert = async (req, res) => {
 
 
         // SAVE DATA
-        const schema = new Review(formField);
+        const schema = new Review({ ...formField, user: req.user._id });
         await schema.save();
         const result = await Review.findById(schema._id).populate(['product', 'user']);
         return createdSuccess(res, result);
@@ -101,6 +100,16 @@ exports.update = async (req, res) => {
         if (!findData) {
             return badRequest(res, null, 'Content Not Found!');
         }
+
+        // CHECK CREATOR 
+        if (findData.user !== req.user._id) {
+            return badRequest(res, null, 'Access Denied!');
+        }
+
+        if (findData.status !== 0) {
+            return badRequest(res, null, 'Content update permission denied!');
+        }
+
 
         // UPDATE DATA
         await Review.findByIdAndUpdate(req.params.id, { $set: formField }, { new: true, useFindAndModify: false });

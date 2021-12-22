@@ -3,11 +3,11 @@ const { validObjectId, authenticate } = require('../middleware')
 
 const { list, getById, insert, remove, update, changeStatus } = require('../controllers/orderController')
 
+router.get('/', authenticate, list)
+router.get('/:id', [validObjectId, authenticate], getById)
 router.post('/', authenticate, insert)
-router.get('/', list)
-router.get('/:id', validObjectId, getById)
-router.put('/:id', validObjectId, update)
-router.delete('/:id', validObjectId, remove)
-router.put('/changeStatus/:id/:status', changeStatus)
+router.put('/:id', [validObjectId, authenticate], update)
+router.delete('/:id', [validObjectId, authenticate], remove)
+router.put('/changeStatus/:id/:status', [validObjectId, authenticate], changeStatus)
 
 module.exports = router
