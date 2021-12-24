@@ -40,3 +40,48 @@ exports.login = async (req, res) => {
         return serverError(res, error);
     }
 }
+
+
+
+
+// USER REGISTER
+exports.register = async (req, res) => {
+    console.log('OOOOOOOOOOOOOO')
+
+    let { firstName, lastName, email, password, contact } = req.body
+
+
+    // CHECK VALIDATION
+    const formField = {
+        "firstName": firstName,
+        "lastName": lastName,
+        "email": email,
+        "password": password,
+        "contact": contact,
+    }
+    const validate = validator(formField);
+    if (!validate.isValid) {
+        return validationError(res, validate.error);
+    }
+
+
+    try {
+        // CHECK EMAIL UNIQUE
+        let findData = await User.findOne({ email });
+        if (findData) {
+            return badRequest(res, null, 'Email address already exist!');
+        }
+
+
+        // GENERATE PASSWORD HASH KEY
+        let hash = await bcrypt.hash(password, 11);
+        formField.password = hash
+
+        // SAVE DATA
+        let schema = new User(formField);
+        let result = await schema.save();
+        return createdSuccess(res, result);
+    } catch (error) {
+        return serverError(res, error);
+    }
+}

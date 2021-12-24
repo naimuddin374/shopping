@@ -16,6 +16,17 @@ exports.list = async (req, res) => {
 }
 
 
+// GET MY ORDER
+exports.myOrder = async (req, res) => {
+    try {
+        let result = await Order.find({ user: req.user._id }).populate('user');
+        return actionSuccess(res, result);
+    } catch (error) {
+        return serverError(res, error);
+    }
+}
+
+
 
 // GET BY ID
 exports.getById = async (req, res) => {
