@@ -5,7 +5,7 @@ const { list, getById, insert, remove, update, changePassword } = require('../co
 
 router.get('/', authenticate, list)
 router.get('/:id', [validObjectId, authenticate], getById)
-router.post('/', authenticate, insert)
+router.post('/', insert)
 router.put('/:id', [validObjectId, authenticate], update)
 router.delete('/:id', [validObjectId, authenticate], remove)
 router.put('/change-password/:id', [validObjectId, authenticate], changePassword)

@@ -1,6 +1,6 @@
 {
     "PORT": "5000",
-    "DB_CONNECTION": "mongodb://localhost:27017/shopping",
+    "DB_CONNECTION": "mongodb+srv://admin:admin@shoppingcart.8ipvj.mongodb.net/test",
     "SECRET_KEY": "APP_SECRET_KEY",
     "env": "development"
 }
