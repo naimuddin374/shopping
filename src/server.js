@@ -65,7 +65,7 @@ let server = app.listen(config.get('PORT'), () => {
 mongoose.connect(`${config.get('DB_CONNECTION')}`,
     { useNewUrlParser: true, useUnifiedTopology: true },
     () => {
-        const msg = `${config.env === 'production' ? 'Live' : 'Local'} Database Connected & Application Listening on port=${config.get('PORT')}`
+        const msg = `Database Connected & Application Listening on port=${config.get('PORT')}`
         logger.info(msg)
     }
 )
