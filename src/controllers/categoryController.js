@@ -1,6 +1,7 @@
 const { Category } = require('../models')
 const validator = require('../validators')
-const { validationError, serverError, createdSuccess, badRequest, actionSuccess, updatedSuccess, deleteSuccess } = require('../utils')
+const { validationError, serverError, createdSuccess, badRequest, actionSuccess, updatedSuccess, deleteSuccess } = require('../utils');
+const fileUpload = require('../utils/fileUpload');
 
 
 
@@ -32,18 +33,18 @@ exports.getById = async (req, res) => {
 exports.insert = async (req, res) => {
     let { name } = req.body
 
-
-    // CHECK VALIDATION
+    try {
+        // CHECK VALIDATION
     const formField = {
         "name": name,
+        "image": `uploads/${req.file.filename}`
     }
     const validate = validator(formField);
     if (!validate.isValid) {
         return validationError(res, validate.error);
     }
-
-
-    try {
+        
+        
         // CHECK UNIQUE
         let findData = await Category.findOne({ name });
         if (findData) {

@@ -57,7 +57,7 @@ exports.validationError = (res, error) => {
 exports.serverError = (res, error) => {
     logger.error(error)
     res.status(500).json({
-        message: 'Server Error Occurred!',
+        message: error.toString() || 'Server Error Occurred!',
         error
     })
 }

@@ -39,7 +39,20 @@ const ProductSchema = new Schema({
     status: {
         type: Number,
         default: 1 // 0=INACTIVE, 1=ACTIVE
-    }
+    },
+    bestSelling: {
+        type: Boolean,
+        default: false
+    },
+    trending: {
+        type: Boolean,
+        default: false
+    },
+    image: {
+        type: String,
+        required: true,
+        trim: true
+    },
 }, { timestamps: true })
 
 const Product = model('Product', ProductSchema)

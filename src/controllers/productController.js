@@ -2,6 +2,7 @@ const { Product, SubCategory } = require('../models')
 const validator = require('../validators')
 const { validationError, serverError, createdSuccess, badRequest, actionSuccess, updatedSuccess, deleteSuccess } = require('../utils');
 const { objectIdIsValid } = require('../utils/helper');
+const fileUpload  = require('../utils/fileUpload');
 
 
 
@@ -9,6 +10,28 @@ const { objectIdIsValid } = require('../utils/helper');
 exports.list = async (req, res) => {
     try {
         let result = await Product.find().populate('subcategory');
+        return actionSuccess(res, result);
+    } catch (error) {
+        return serverError(res, error);
+    }
+}
+
+
+// GET LIST OF BEST SELLING
+exports.getBestSelling = async (req, res) => {
+    try {
+        let result = await Product.find({ bestSelling: true }).populate('subcategory');
+        return actionSuccess(res, result);
+    } catch (error) {
+        return serverError(res, error);
+    }
+}
+
+
+// GET LIST OF TRENDING
+exports.getTrending = async (req, res) => {
+    try {
+        let result = await Product.find({ trending: true }).populate('subcategory');
         return actionSuccess(res, result);
     } catch (error) {
         return serverError(res, error);
@@ -69,24 +92,28 @@ exports.getBySearch = async (req, res) => {
 
 // INSERT
 exports.insert = async (req, res) => {
-    let { title, description, price, discount, subcategory, sizes, colors } = req.body
-
-
-    // CHECK VALIDATION
-    const formField = {
-        "title": title,
-        "description": description,
-        "price": price,
-        "discount": discount,
-        "subcategory": subcategory,
-    }
-    const validate = validator(formField);
-    if (!validate.isValid) {
-        return validationError(res, validate.error);
-    }
-
+    let { title, description, price, discount, subcategory, sizes, colors, bestSelling, trending } = req.body
 
     try {
+        if(!req.file.filename) {
+            return validationError(res, 'The image field is required!');
+        }
+        
+        // CHECK VALIDATION
+        const formField = {
+            "title": title,
+            "description": description,
+            "price": price,
+            "discount": discount,
+            "subcategory": subcategory,
+            "image": `uploads/${req.file.filename}`
+        }
+        const validate = validator(formField);
+        if (!validate.isValid) {
+            return validationError(res, validate.error);
+        }
+
+
         if (!objectIdIsValid(subcategory)) {
             return badRequest(res, null, 'Invalid ID!');
         }
@@ -106,6 +133,8 @@ exports.insert = async (req, res) => {
         // SAVE DATA
         formField.sizes = sizes
         formField.colors = colors
+        formField.bestSelling = bestSelling
+        formField.trending = trending
         const schema = new Product(formField);
         await schema.save();
         const result = await Product.findById(schema._id).populate('subcategory');

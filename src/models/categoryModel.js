@@ -6,6 +6,11 @@ const CategorySchema = new Schema({
         required: true,
         trim: true
     },
+    image: {
+        type: String,
+        required: true,
+        trim: true
+    },
 }, { timestamps: true })
 
 const Category = model('Category', CategorySchema)
