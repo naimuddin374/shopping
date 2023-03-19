@@ -8,7 +8,7 @@ const Product = require('./productModel');
 const Review = require('./reviewModel');
 const Order = require('./orderModel');
 const OrderDetail = require('./orderDetailModel');
-
+const Slider = require('./sliderModel')
 
 module.exports = {
     User,
@@ -21,4 +21,5 @@ module.exports = {
     Review,
     Order,
     OrderDetail,
+    Slider
 }

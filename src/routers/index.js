@@ -39,6 +39,10 @@ const routes = [
         handler: require('./userRouter')
     },
     {
+        path: '/api/sliders',
+        handler: require('./sliderRouter')
+    },
+    {
         path: '*',
         handler: (req, res) => {
             return res.sendFile(path.resolve(__dirname, '../../', 'public', 'index.html'))

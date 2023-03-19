@@ -28,11 +28,6 @@ setRoute(app)
 
 
 
-app.get('/', (req, res) => {
-    console.log('OK')
-    return res.status(200).json({ message: 'Welcome to our application!' })
-})
-
 app.use((req, res, next) => {
     const error = new Error('404 Page Not Found!')
     error.status = 404
@@ -40,6 +35,7 @@ app.use((req, res, next) => {
 })
 
 app.use((error, req, res, next) => {
+    console.log('error=', error.toString())
     if (error.status === 404) {
         return res.status(404).json({
             message: error.message,
@@ -48,7 +44,7 @@ app.use((error, req, res, next) => {
     }
 
     return res.status(500).json({
-        message: 'Internal Server Error!',
+        message: error.toString() ?? 'Internal Server Error!',
         status: 500
     })
 })

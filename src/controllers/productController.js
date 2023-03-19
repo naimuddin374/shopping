@@ -2,15 +2,39 @@ const { Product, SubCategory } = require('../models')
 const validator = require('../validators')
 const { validationError, serverError, createdSuccess, badRequest, actionSuccess, updatedSuccess, deleteSuccess } = require('../utils');
 const { objectIdIsValid } = require('../utils/helper');
-const fileUpload  = require('../utils/fileUpload');
 
 
 
 // GET LIST
 exports.list = async (req, res) => {
     try {
-        let result = await Product.find().populate('subcategory');
-        return actionSuccess(res, result);
+        const page = parseInt(req.query.page || '1');
+        const limit = parseInt(req.query.limit || '10');
+        const query = {};
+
+        // You can add filters to your query if needed
+        if (req.query.keyword) {
+            query.$or = [
+                { title: { $regex: req.query.keyword, $options: 'i' } },
+                { description: { $regex: req.query.keyword, $options: 'i' } },
+            ];
+        }
+
+        // Calculate the offset and limit based on the page size
+        const offset = (page - 1) * limit;
+
+
+        const result = await Product.find(query).skip(offset).limit(limit).populate('subcategory');
+
+        const totalDocument = await Product.countDocuments(query);
+
+        const payload = {
+            result,
+            totalDocument,
+            totalPages: Math.ceil(totalDocument / limit),
+            currentPage: page,
+        }
+        return actionSuccess(res, payload);
     } catch (error) {
         return serverError(res, error);
     }
@@ -20,8 +44,32 @@ exports.list = async (req, res) => {
 // GET LIST OF BEST SELLING
 exports.getBestSelling = async (req, res) => {
     try {
-        let result = await Product.find({ bestSelling: true }).populate('subcategory');
-        return actionSuccess(res, result);
+        const page = parseInt(req.query.page || '1');
+        const limit = parseInt(req.query.limit || '10');
+        const query = {
+            bestSelling: true
+        };
+
+        // You can add filters to your query if needed
+        if (req.query.genre) {
+            query.genre = req.query.genre;
+        }
+
+        // Calculate the offset and limit based on the page size
+        const offset = (page - 1) * limit;
+
+
+        const result = await Product.find(query).skip(offset).limit(limit).populate('subcategory');
+
+        const totalDocument = await Product.countDocuments(query);
+
+        const payload = {
+            result,
+            totalDocument,
+            totalPages: Math.ceil(totalDocument / limit),
+            currentPage: page,
+        }
+        return actionSuccess(res, payload);
     } catch (error) {
         return serverError(res, error);
     }
@@ -31,8 +79,31 @@ exports.getBestSelling = async (req, res) => {
 // GET LIST OF TRENDING
 exports.getTrending = async (req, res) => {
     try {
-        let result = await Product.find({ trending: true }).populate('subcategory');
-        return actionSuccess(res, result);
+        const page = parseInt(req.query.page || '1');
+        const limit = parseInt(req.query.limit || '10');
+        const query = {
+            trending: true
+        };
+
+        // You can add filters to your query if needed
+        if (req.query.genre) {
+            query.genre = req.query.genre;
+        }
+
+        // Calculate the offset and limit based on the page size
+        const offset = (page - 1) * limit;
+
+        const result = await Product.find(query).skip(offset).limit(limit).populate('subcategory');
+
+        const totalDocument = await Product.countDocuments(query);
+
+        const payload = {
+            result,
+            totalDocument,
+            totalPages: Math.ceil(totalDocument / limit),
+            currentPage: page,
+        }
+        return actionSuccess(res, payload);
     } catch (error) {
         return serverError(res, error);
     }
@@ -43,7 +114,7 @@ exports.getTrending = async (req, res) => {
 // GET BY ID
 exports.getById = async (req, res) => {
     try {
-        let result = await Product.findById(req.params.id).populate('subcategory');
+        const result = await Product.findById(req.params.id).populate('subcategory');
         return actionSuccess(res, result);
     } catch (error) {
         return serverError(res, error);
@@ -54,8 +125,32 @@ exports.getById = async (req, res) => {
 // GET BY SUB CATEGORY ID
 exports.getBySubCatId = async (req, res) => {
     try {
-        let result = await Product.find({ subcategory: req.params.id }).populate('subcategory');
-        return actionSuccess(res, result);
+        const page = parseInt(req.query.page || '1');
+        const limit = parseInt(req.query.limit || '10');
+        const query = {
+            subcategory: req.params.id
+        };
+
+        // You can add filters to your query if needed
+        if (req.query.genre) {
+            query.genre = req.query.genre;
+        }
+
+        // Calculate the offset and limit based on the page size
+        const offset = (page - 1) * limit;
+
+
+        const result = await Product.find(query).skip(offset).limit(limit).populate('subcategory');
+
+        const totalDocument = await Product.countDocuments(query);
+
+        const payload = {
+            result,
+            totalDocument,
+            totalPages: Math.ceil(totalDocument / limit),
+            currentPage: page,
+        }
+        return actionSuccess(res, payload);
     } catch (error) {
         return serverError(res, error);
     }
@@ -65,8 +160,32 @@ exports.getBySubCatId = async (req, res) => {
 // GET BY CATEGORY ID
 exports.getByCatId = async (req, res) => {
     try {
-        let result = await Product.find({ subcategory: { category: req.params.id } }).populate('subcategory');
-        return actionSuccess(res, result);
+        const page = parseInt(req.query.page || '1');
+        const limit = parseInt(req.query.limit || '10');
+        const query = {
+            subcategory: { category: req.params.id }
+        };
+
+        // You can add filters to your query if needed
+        if (req.query.genre) {
+            query.genre = req.query.genre;
+        }
+
+        // Calculate the offset and limit based on the page size
+        const offset = (page - 1) * limit;
+
+
+        const result = await Product.find(query).skip(offset).limit(limit).populate('subcategory');
+
+        const totalDocument = await Product.countDocuments(query);
+
+        const payload = {
+            result,
+            totalDocument,
+            totalPages: Math.ceil(totalDocument / limit),
+            currentPage: page,
+        }
+        return actionSuccess(res, payload);
     } catch (error) {
         return serverError(res, error);
     }
@@ -78,11 +197,33 @@ exports.getBySearch = async (req, res) => {
     const title = req.query.title || '';
     const description = req.query.description || '';
     try {
-        let result = await Product.find({
-            "title": { "$regex": title, "$options": "i" },
-            "description": { "$regex": description, "$options": "i" },
-        }).populate('subcategory');
-        return actionSuccess(res, result);
+        const page = parseInt(req.query.page || '1');
+        const limit = parseInt(req.query.limit || '10');
+        const query = {
+            title: { "$regex": title, "$options": "i" },
+            description: { "$regex": description, "$options": "i" },
+        }
+
+        // You can add filters to your query if needed
+        // if (req.query.genre) {
+        //     query.genre = req.query.genre;
+        // }
+
+        // Calculate the offset and limit based on the page size
+        const offset = (page - 1) * limit;
+
+        const result = await Product.find(query).skip(offset).limit(limit).populate('subcategory');
+
+        const totalDocument = await Product.countDocuments(query);
+
+        const payload = {
+            result,
+            totalDocument,
+            totalPages: Math.ceil(totalDocument / limit),
+            currentPage: page,
+        }
+        return actionSuccess(res, payload);
+
     } catch (error) {
         return serverError(res, error);
     }
@@ -95,10 +236,10 @@ exports.insert = async (req, res) => {
     let { title, description, price, discount, subcategory, sizes, colors, bestSelling, trending } = req.body
 
     try {
-        if(!req.file.filename) {
+        if (!req.file.filename) {
             return validationError(res, 'The image field is required!');
         }
-        
+
         // CHECK VALIDATION
         const formField = {
             "title": title,
@@ -130,9 +271,10 @@ exports.insert = async (req, res) => {
             return badRequest(res, null, 'Content already exists!');
         }
 
+
         // SAVE DATA
-        formField.sizes = sizes
-        formField.colors = colors
+        formField.sizes = sizes ? JSON.parse(sizes) : ''
+        formField.colors = colors ? JSON.parse(colors) : ''
         formField.bestSelling = bestSelling
         formField.trending = trending
         const schema = new Product(formField);
@@ -172,8 +314,13 @@ exports.update = async (req, res) => {
         }
 
         // UPDATE DATA
-        formField.sizes = sizes
-        formField.colors = colors
+        if (sizes) {
+            formField.sizes = JSON.parse(sizes)
+        }
+        if (colors) {
+            formField.colors = JSON.parse(colors)
+        }
+
         await Product.findByIdAndUpdate(req.params.id, { $set: formField }, { new: true, useFindAndModify: false });
         const result = await Product.findById(req.params.id).populate('subcategory');
         return updatedSuccess(res, result);
