@@ -1,49 +1,51 @@
 const multer = require('multer');
-const path = require('path');
+const cloudinary = require('cloudinary').v2;
+const config = require('config');
+const { getCloudinaryPublicId } = require('./helper');
 
 
-// Set storage engine
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'public/uploads/'); // specify the destination folder
-    },
-    filename: function (req, file, cb) {
-        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname)); // specify the filename
+const maxSize = 1 * 1024 * 1024;
+
+const uploadImage = multer({
+    dest: 'uploads/',
+    limits: {
+        fileSize: maxSize
     }
 });
 
-const checkFileType = (file, cb) => {
-    const filetypes = /jpg|jpeg|png/ // Choose Types you want...
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase())
-    const mimetype = filetypes.test(file.mimetype)
 
-    if (extname && mimetype) {
-        return cb(null, true)
-    } else {
-        cb(new Error('Images only!')) // custom this message to fit your needs
+// Configure Cloudinary
+cloudinary.config({
+    cloud_name: config.get('YOUR_CLOUD_NAME'),
+    api_key: config.get('YOUR_API_KEY'),
+    api_secret: config.get('YOUR_API_SECRET'),
+});
+
+
+
+const fileUploadHandler = async (req, _res, next) => {
+    if (!req.file) return null;
+    try {
+        const result = await cloudinary.uploader.upload(req.file.path);
+        return result.secure_url;
+    } catch (error) {
+        console.log('file upload error: ' + error.toString())
+        next(error);
+    }
+}
+const fileDeleteHandler = async (sourceUrl) => {
+    if (!sourceUrl) return true;
+    try {
+        const publicId = getCloudinaryPublicId(sourceUrl);
+        return await cloudinary.uploader.destroy(publicId);
+    } catch (error) {
+        console.log('Delete file error:', error.toString())
     }
 }
 
-// Initialize upload
-const fileUpload = multer({
-    limits: {
-        fileSize: 10000000 // maximum file size in bytes (10 MB)
-    },
-    storage,
-    fileFilter: function (req, file, cb) {
-        checkFileType(file, cb)
-    },
-});
 
-// const fileUpload = (req, res) => {
-//     return new Promise((resolve, reject) => {
-//         upload(req, res, (err) => {
-//             if (err) {
-//                 reject(err)
-//             }
-//             resolve(req.file)
-//         });
-//     })
-// }
-
-module.exports = fileUpload
+module.exports = {
+    uploadImage,
+    fileUploadHandler,
+    fileDeleteHandler
+}

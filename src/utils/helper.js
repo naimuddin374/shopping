@@ -171,5 +171,11 @@ exports.tokenGenerator = async (user) => {
     }
 }
 
+exports.getCloudinaryPublicId =  (sourceUrl) => {
+    sourceUrl = sourceUrl.split('/')
+    sourceUrl = sourceUrl[sourceUrl.length - 1]
+   return sourceUrl.split('.')[0];
+}
+
 
 exports.objectIdIsValid = id => mongoose.Types.ObjectId.isValid(id)

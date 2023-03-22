@@ -8,7 +8,7 @@ const fileUpload = require('../utils/fileUpload');
 // GET LIST
 exports.list = async (req, res) => {
     try {
-        let result = await Category.find();
+        const result = await Category.find();
         return actionSuccess(res, result);
     } catch (error) {
         return serverError(res, error);
@@ -20,7 +20,7 @@ exports.list = async (req, res) => {
 // GET BY ID
 exports.getById = async (req, res) => {
     try {
-        let result = await Category.findById(req.params.id);
+        const result = await Category.findById(req.params.id);
         return actionSuccess(res, result);
     } catch (error) {
         return serverError(res, error);
@@ -30,30 +30,32 @@ exports.getById = async (req, res) => {
 
 
 // INSERT
-exports.insert = async (req, res) => {
+exports.insert = async (req, res, next) => {
     let { name } = req.body
 
     try {
+        const uploadFile = await fileUpload.fileUploadHandler(req, res, next)
+
         // CHECK VALIDATION
-    const formField = {
-        "name": name,
-        "image": `uploads/${req.file.filename}`
-    }
-    const validate = validator(formField);
-    if (!validate.isValid) {
-        return validationError(res, validate.error);
-    }
-        
-        
+        const formField = {
+            "name": name,
+            "image": uploadFile
+        }
+        const validate = validator(formField);
+        if (!validate.isValid) {
+            return validationError(res, validate.error);
+        }
+
+
         // CHECK UNIQUE
-        let findData = await Category.findOne({ name });
+        const findData = await Category.findOne({ name });
         if (findData) {
             return badRequest(res, null, 'Content already exists!');
         }
 
         // SAVE DATA
-        let schema = new Category(formField);
-        let result = await schema.save();
+        const schema = new Category(formField);
+        const result = await schema.save();
         return createdSuccess(res, result);
     } catch (error) {
         return serverError(res, error);
@@ -63,7 +65,7 @@ exports.insert = async (req, res) => {
 
 
 // UPDATE
-exports.update = async (req, res) => {
+exports.update = async (req, res, next) => {
     let { name } = req.body
 
     // CHECK VALIDATION
@@ -83,8 +85,18 @@ exports.update = async (req, res) => {
             return badRequest(res, null, 'Content Not Found!');
         }
 
+        // REMOVE AND UPLOAD NEW IMAGE
+        const uploadFile = await fileUpload.fileUploadHandler(req, res, next)
+        if (uploadFile) {
+            formField.image = uploadFile;
+            if (findData.image) {
+                await fileUpload.fileDeleteHandler(findData.image)
+            }
+        }
+
+
         // UPDATE DATA
-        let result = await Category.findByIdAndUpdate(req.params.id, { $set: formField }, { new: true, useFindAndModify: false })
+        const result = await Category.findByIdAndUpdate(req.params.id, { $set: formField }, { new: true, useFindAndModify: false })
         return updatedSuccess(res, result);
     } catch (error) {
         return serverError(res, error);
@@ -98,13 +110,18 @@ exports.update = async (req, res) => {
 exports.remove = async (req, res) => {
     try {
         // CHECK ID
-        let findData = await Category.findById(req.params.id);
+        const findData = await Category.findById(req.params.id);
         if (!findData) {
             return badRequest(res, null, 'Content Not Found!');
         }
 
+        // Image delete 
+        if (findData.image) {
+            await fileUpload.deleteHandler(findData.image)
+        }
+
         // UPDATE DATA
-        let result = await Category.findByIdAndDelete(req.params.id)
+        const result = await Category.findByIdAndDelete(req.params.id)
         return deleteSuccess(res, result);
     } catch (error) {
         return serverError(res, error);

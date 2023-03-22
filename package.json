@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.0.1",
+    "cloudinary": "^1.35.0",
     "config": "^3.3.6",
     "cors": "^2.8.5",
     "corss": "^2.8.5",

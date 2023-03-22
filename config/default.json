@@ -2,5 +2,9 @@
     "PORT": "5000",
     "DB_CONNECTION": "mongodb+srv://admin:pass1234@shopping.aa8wpvq.mongodb.net/test",
     "SECRET_KEY": "APP_SECRET_KEY",
-    "env": "development"
+    "env": "development",
+    "CLOUDINARY_URL": "cloudinary://481179385283988:uJA-zI3VW3_izuor_YQPriNHSwo@dzm6hs1r9",
+    "YOUR_CLOUD_NAME": "dzm6hs1r9",
+    "YOUR_API_KEY": "481179385283988",
+    "YOUR_API_SECRET": "uJA-zI3VW3_izuor_YQPriNHSwo"
 }

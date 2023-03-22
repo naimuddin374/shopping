@@ -2,6 +2,8 @@ const { Product, SubCategory } = require('../models')
 const validator = require('../validators')
 const { validationError, serverError, createdSuccess, badRequest, actionSuccess, updatedSuccess, deleteSuccess } = require('../utils');
 const { objectIdIsValid } = require('../utils/helper');
+const fileUpload = require('../utils/fileUpload');
+
 
 
 
@@ -232,11 +234,13 @@ exports.getBySearch = async (req, res) => {
 
 
 // INSERT
-exports.insert = async (req, res) => {
+exports.insert = async (req, res, next) => {
     let { title, description, price, discount, subcategory, sizes, colors, bestSelling, trending } = req.body
 
     try {
-        if (!req.file.filename) {
+        const uploadFile = await fileUpload.fileUploadHandler(req, res, next)
+
+        if (!uploadFile) {
             return validationError(res, 'The image field is required!');
         }
 
@@ -247,7 +251,7 @@ exports.insert = async (req, res) => {
             "price": price,
             "discount": discount,
             "subcategory": subcategory,
-            "image": `uploads/${req.file.filename}`
+            "image": uploadFile
         }
         const validate = validator(formField);
         if (!validate.isValid) {
@@ -260,16 +264,17 @@ exports.insert = async (req, res) => {
         }
 
         // FIND SUB CATEGORY
-        let findScat = await SubCategory.findById(subcategory);
+        const findScat = await SubCategory.findById(subcategory);
         if (!findScat) {
             return badRequest(res, null, 'Invalid subcategory!');
         }
 
         // CHECK UNIQUE
-        let findData = await Product.findOne({ title, subcategory });
+        const findData = await Product.findOne({ title, subcategory });
         if (findData) {
             return badRequest(res, null, 'Content already exists!');
         }
+
 
 
         // SAVE DATA
@@ -289,7 +294,7 @@ exports.insert = async (req, res) => {
 
 
 // UPDATE
-exports.update = async (req, res) => {
+exports.update = async (req, res, next) => {
     let { title, description, price, discount, subcategory, sizes, colors } = req.body
 
     // CHECK VALIDATION
@@ -308,9 +313,18 @@ exports.update = async (req, res) => {
 
     try {
         // CHECK ID 
-        let findData = await Product.findById(req.params.id);
+        const findData = await Product.findById(req.params.id);
         if (!findData) {
             return badRequest(res, null, 'Content Not Found!');
+        }
+
+        // REMOVE AND UPLOAD NEW IMAGE
+        const uploadFile = await fileUpload.fileUploadHandler(req, res, next)
+        if (uploadFile) {
+            formField.image = uploadFile;
+            if (findData.image) {
+                await fileUpload.fileDeleteHandler(findData.image)
+            }
         }
 
         // UPDATE DATA
@@ -336,13 +350,13 @@ exports.update = async (req, res) => {
 exports.remove = async (req, res) => {
     try {
         // CHECK ID
-        let findData = await Product.findById(req.params.id);
+        const findData = await Product.findById(req.params.id);
         if (!findData) {
             return badRequest(res, null, 'Content Not Found!');
         }
 
         // UPDATE DATA
-        let result = await Product.findByIdAndDelete(req.params.id)
+        const result = await Product.findByIdAndDelete(req.params.id)
         return deleteSuccess(res, result);
     } catch (error) {
         return serverError(res, error);

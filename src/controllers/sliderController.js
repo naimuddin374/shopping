@@ -1,12 +1,14 @@
 const { Slider } = require('../models')
 const validator = require('../validators')
 const { validationError, serverError, createdSuccess, badRequest, actionSuccess, updatedSuccess, deleteSuccess } = require('../utils');
+const fileUpload = require('../utils/fileUpload');
+
 
 
 // GET LIST
 exports.list = async (req, res) => {
     try {
-        let result = await Slider.find();
+        const result = await Slider.find();
         return actionSuccess(res, result);
     } catch (error) {
         return serverError(res, error);
@@ -17,7 +19,7 @@ exports.list = async (req, res) => {
 // GET BY ID
 exports.getById = async (req, res) => {
     try {
-        let result = await Slider.findById(req.params.id);
+        const result = await Slider.findById(req.params.id);
         return actionSuccess(res, result);
     } catch (error) {
         return serverError(res, error);
@@ -27,23 +29,24 @@ exports.getById = async (req, res) => {
 
 
 // INSERT
-exports.insert = async (req, res) => {
+exports.insert = async (req, res, next) => {
     let { name, serial } = req.body
-    console.log('name', name)
+
+    const uploadFile = await fileUpload.fileUploadHandler(req, res, next)
 
     try {
         // CHECK VALIDATION
-    const formField = {
-        "name": name,
-        "serial": serial,
-        "image": `uploads/${req.file.filename}`
-    }
-    const validate = validator(formField);
-    if (!validate.isValid) {
-        return validationError(res, validate.error);
-    }
-        
-        
+        const formField = {
+            "name": name,
+            "serial": serial,
+            "image": uploadFile
+        }
+        const validate = validator(formField);
+        if (!validate.isValid) {
+            return validationError(res, validate.error);
+        }
+
+
         // CHECK UNIQUE
         let findData = await Slider.findOne({ name });
         if (findData) {
@@ -51,8 +54,8 @@ exports.insert = async (req, res) => {
         }
 
         // SAVE DATA
-        let schema = new Slider(formField);
-        let result = await schema.save();
+        const schema = new Slider(formField);
+        const result = await schema.save();
         return createdSuccess(res, result);
     } catch (error) {
         return serverError(res, error);
@@ -62,7 +65,7 @@ exports.insert = async (req, res) => {
 
 
 // UPDATE
-exports.update = async (req, res) => {
+exports.update = async (req, res, next) => {
     let { name, serial } = req.body
 
     // CHECK VALIDATION
@@ -78,13 +81,23 @@ exports.update = async (req, res) => {
 
     try {
         // CHECK ID 
-        let findData = await Slider.findById(req.params.id);
+        const findData = await Slider.findById(req.params.id);
         if (!findData) {
             return badRequest(res, null, 'Content Not Found!');
         }
 
+        // REMOVE AND UPLOAD NEW IMAGE
+        const uploadFile = await fileUpload.fileUploadHandler(req, res, next)
+        if (uploadFile) {
+            formField.image = uploadFile;
+            if (findData.image) {
+                await fileUpload.fileDeleteHandler(findData.image)
+            }
+        }
+
+
         // UPDATE DATA
-        let result = await Slider.findByIdAndUpdate(req.params.id, { $set: formField }, { new: true, useFindAndModify: false })
+        const result = await Slider.findByIdAndUpdate(req.params.id, { $set: formField }, { new: true, useFindAndModify: false })
         return updatedSuccess(res, result);
     } catch (error) {
         return serverError(res, error);
