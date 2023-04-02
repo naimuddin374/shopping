@@ -117,7 +117,7 @@ exports.remove = async (req, res) => {
 
         // Image delete 
         if (findData.image) {
-            await fileUpload.deleteHandler(findData.image)
+            await fileUpload.fileDeleteHandler(findData.image)
         }
 
         // UPDATE DATA
