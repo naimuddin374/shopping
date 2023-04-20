@@ -32,6 +32,7 @@ exports.getById = async (req, res) => {
 // INSERT
 exports.insert = async (req, res) => {
     const { comment, rating, product } = req.body
+    const userId = req.user._id
 
 
     // CHECK VALIDATION
@@ -50,9 +51,6 @@ exports.insert = async (req, res) => {
         if (!objectIdIsValid(product)) {
             return badRequest(res, null, 'Invalid Product ID!');
         }
-        if (!objectIdIsValid(user)) {
-            return badRequest(res, null, 'Invalid User ID!');
-        }
 
         // FIND PRODUCT
         const findPdt = await Product.findById(product);
@@ -61,7 +59,7 @@ exports.insert = async (req, res) => {
         }
 
         // FIND USER
-        const findUser = await User.findById(user);
+        const findUser = await User.findById(userId);
         if (!findUser) {
             return badRequest(res, null, 'Invalid User!');
         }
