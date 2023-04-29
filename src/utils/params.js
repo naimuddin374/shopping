@@ -1,0 +1,1 @@
+exports.getParams = (query) => {};

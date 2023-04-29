@@ -1,111 +1,129 @@
-const { Color } = require('../models')
-const validator = require('../validators')
-const { validationError, serverError, createdSuccess, badRequest, actionSuccess, updatedSuccess, deleteSuccess } = require('../utils')
-
-
+const { Color } = require("../models");
+const validator = require("../validators");
+const {
+  validationError,
+  serverError,
+  createdSuccess,
+  badRequest,
+  actionSuccess,
+  updatedSuccess,
+  deleteSuccess,
+} = require("../utils");
 
 // GET LIST
 exports.list = async (req, res) => {
-    try {
-        let result = await Color.find();
-        return actionSuccess(res, result);
-    } catch (error) {
-        return serverError(res, error);
+  try {
+    const page = parseInt(req.query.page || "1");
+    const limit = parseInt(req.query.limit || "10");
+    const query = {};
+
+    // You can add filters to your query if needed
+    if (req.query.keyword) {
+      query.$or = [{ name: { $regex: req.query.keyword, $options: "i" } }];
     }
-}
 
+    /** Data pull from database */
+    const data = await Color.find(query)
+      .skip((page - 1) * limit)
+      .limit(limit);
+    const totalDocument = await Color.countDocuments(query);
 
+    const response = {
+      data,
+      totalDocument,
+      totalPages: Math.ceil(totalDocument / limit),
+      currentPage: page,
+    };
+    return actionSuccess(res, response);
+  } catch (error) {
+    return serverError(res, error);
+  }
+};
 
 // GET BY ID
 exports.getById = async (req, res) => {
-    try {
-        let result = await Color.findById(req.params.id);
-        return actionSuccess(res, result);
-    } catch (error) {
-        return serverError(res, error);
-    }
-}
-
-
+  try {
+    let result = await Color.findById(req.params.id);
+    return actionSuccess(res, result);
+  } catch (error) {
+    return serverError(res, error);
+  }
+};
 
 // INSERT
 exports.insert = async (req, res) => {
-    let { name } = req.body
+  let { name } = req.body;
 
+  // CHECK VALIDATION
+  const formField = {
+    name: name,
+  };
+  const validate = validator(formField);
+  if (!validate.isValid) {
+    return validationError(res, validate.error);
+  }
 
-    // CHECK VALIDATION
-    const formField = {
-        "name": name,
+  try {
+    // CHECK UNIQUE
+    let findData = await Color.findOne({ name });
+    if (findData) {
+      return badRequest(res, null, "Content already exists!");
     }
-    const validate = validator(formField);
-    if (!validate.isValid) {
-        return validationError(res, validate.error);
-    }
 
-
-    try {
-        // CHECK UNIQUE
-        let findData = await Color.findOne({ name });
-        if (findData) {
-            return badRequest(res, null, 'Content already exists!');
-        }
-
-        // SAVE DATA
-        let schema = new Color(formField);
-        let result = await schema.save();
-        return createdSuccess(res, result);
-    } catch (error) {
-        return serverError(res, error);
-    }
-}
-
-
+    // SAVE DATA
+    let schema = new Color(formField);
+    let result = await schema.save();
+    return createdSuccess(res, result);
+  } catch (error) {
+    return serverError(res, error);
+  }
+};
 
 // UPDATE
 exports.update = async (req, res) => {
-    let { name } = req.body
+  let { name } = req.body;
 
-    // CHECK VALIDATION
-    const formField = {
-        "name": name,
+  // CHECK VALIDATION
+  const formField = {
+    name: name,
+  };
+  const validate = validator(formField);
+  if (!validate.isValid) {
+    return validationError(res, validate.error);
+  }
+
+  try {
+    // CHECK ID
+    let findData = await Color.findById(req.params.id);
+    if (!findData) {
+      return badRequest(res, null, "Content Not Found!");
     }
-    const validate = validator(formField);
-    if (!validate.isValid) {
-        return validationError(res, validate.error);
-    }
 
-
-    try {
-        // CHECK ID 
-        let findData = await Color.findById(req.params.id);
-        if (!findData) {
-            return badRequest(res, null, 'Content Not Found!');
-        }
-
-        // UPDATE DATA
-        let result = await Color.findByIdAndUpdate(req.params.id, { $set: formField }, { new: true, useFindAndModify: false })
-        return updatedSuccess(res, result);
-    } catch (error) {
-        return serverError(res, error);
-    }
-}
-
-
-
+    // UPDATE DATA
+    let result = await Color.findByIdAndUpdate(
+      req.params.id,
+      { $set: formField },
+      { new: true, useFindAndModify: false }
+    );
+    return updatedSuccess(res, result);
+  } catch (error) {
+    return serverError(res, error);
+  }
+};
 
 // DELETE
 exports.remove = async (req, res) => {
-    try {
-        // CHECK ID
-        let findData = await Color.findById(req.params.id);
-        if (!findData) {
-            return badRequest(res, null, 'Content Not Found!');
-        }
-
-        // UPDATE DATA
-        let result = await Color.findByIdAndDelete(req.params.id)
-        return deleteSuccess(res, result);
-    } catch (error) {
-        return serverError(res, error);
+  try {
+    // CHECK ID
+    let findData = await Color.findById(req.params.id);
+    if (!findData) {
+      return badRequest(res, null, "Content Not Found!");
     }
-}
+
+    // UPDATE DATA
+    let result = await Color.findByIdAndDelete(req.params.id);
+    return deleteSuccess(res, result);
+  } catch (error) {
+    return serverError(res, error);
+  }
+};
