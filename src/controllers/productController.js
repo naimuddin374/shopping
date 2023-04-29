@@ -11,19 +11,19 @@ const {
 } = require("../utils");
 const { objectIdIsValid } = require("../utils/helper");
 const fileUpload = require("../utils/fileUpload");
+const { getQueryParams } = require("../utils/query-params");
 
 // GET LIST
 exports.list = async (req, res) => {
-  try {
-    const page = parseInt(req.query.page || "1");
-    const limit = parseInt(req.query.limit || "10");
-    const query = {};
+  const query = {};
+  const { page, limit, keyword } = getQueryParams(req);
 
+  try {
     // You can add filters to your query if needed
-    if (req.query.keyword) {
+    if (keyword) {
       query.$or = [
-        { title: { $regex: req.query.keyword, $options: "i" } },
-        { description: { $regex: req.query.keyword, $options: "i" } },
+        { title: { $regex: keyword, $options: "i" } },
+        { description: { $regex: keyword, $options: "i" } },
       ];
     }
 

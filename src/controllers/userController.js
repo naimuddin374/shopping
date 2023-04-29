@@ -10,19 +10,19 @@ const {
   updatedSuccess,
   deleteSuccess,
 } = require("../utils");
+const { getQueryParams } = require("../utils/query-params");
 
 // GET LIST
 exports.list = async (req, res) => {
-  try {
-    const page = parseInt(req.query.page || "1");
-    const limit = parseInt(req.query.limit || "10");
-    const query = {};
+  const query = {};
+  const { page, limit, keyword } = getQueryParams(req);
 
+  try {
     // You can add filters to your query if needed
-    if (req.query.keyword) {
-      query.$or = [{ firstName: { $regex: req.query.keyword, $options: "i" } }];
-      query.$or = [{ lastName: { $regex: req.query.keyword, $options: "i" } }];
-      query.$or = [{ email: { $regex: req.query.keyword, $options: "i" } }];
+    if (keyword) {
+      query.$or = [{ firstName: { $regex: keyword, $options: "i" } }];
+      query.$or = [{ lastName: { $regex: keyword, $options: "i" } }];
+      query.$or = [{ email: { $regex: keyword, $options: "i" } }];
     }
 
     /** Data pull from database */
