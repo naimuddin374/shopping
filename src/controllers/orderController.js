@@ -103,8 +103,8 @@ exports.insert = async (req, res) => {
     let totalDiscount = 0;
 
     selPdt.forEach((item) => {
-      totalPrice = item.price + totalPrice;
-      totalDiscount = item.price + totalDiscount;
+      totalPrice = Number(item.price) + totalPrice;
+      totalDiscount = Number(item.price) + totalDiscount;
     });
 
     // SAVE DATA
@@ -129,7 +129,7 @@ exports.insert = async (req, res) => {
         product: item._id,
         price: item.price,
         discount: item.discount,
-        totalPrice: (item.price - item.discount) * Number(quantity),
+        totalPrice: (Number(item.price) - Number(item.discount)) * Number(quantity),
         quantity,
       });
       orderDetailSchema.save();
