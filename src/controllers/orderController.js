@@ -122,17 +122,18 @@ exports.insert = async (req, res) => {
 
     // SAVE ORDER DETAILS
     selPdt.forEach((item) => {
-      let quantity = products.filter((p) => p._id === item._id)[0]?.quantity;
-
-      let orderDetailSchema = new OrderDetail({
-        order: schema._id,
-        product: item._id,
-        price: item.price,
-        discount: item.discount,
-        totalPrice: (Number(item.price) - Number(item.discount)) * Number(quantity),
-        quantity,
-      });
-      orderDetailSchema.save();
+      let findItem = products.find((p) => p._id === item._id.toString());
+      if (findItem) {
+        let orderDetailSchema = new OrderDetail({
+          order: schema._id,
+          product: item._id,
+          price: item.price,
+          discount: item.discount,
+          totalPrice: (Number(item.price) - Number(item.discount)) * Number(findItem.quantity),
+          quantity: findItem.quantity,
+        });
+        orderDetailSchema.save();
+      }
     });
 
     return createdSuccess(res, result, "Order created successfully!");
