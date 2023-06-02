@@ -81,6 +81,7 @@ exports.insert = async (req, res) => {
   if (!validate.isValid) {
     return validationError(res, validate.error);
   }
+  console.log("products=", products);
 
   try {
     // FIND PRODUCT
@@ -93,6 +94,9 @@ exports.insert = async (req, res) => {
         totalQuantity = totalQuantity + item.quantity;
       }
     });
+    if (pdtIds.length === 0) {
+      return badRequest(res, null, "Product not found!");
+    }
 
     const selPdt = await Product.find({ $in: pdtIds });
     if (!selPdt) {
@@ -129,7 +133,9 @@ exports.insert = async (req, res) => {
           product: item._id,
           price: item.price,
           discount: item.discount,
-          totalPrice: (Number(item.price) - Number(item.discount)) * Number(findItem.quantity),
+          totalPrice:
+            (Number(item.price) - Number(item.discount)) *
+            Number(findItem.quantity),
           quantity: findItem.quantity,
         });
         orderDetailSchema.save();
