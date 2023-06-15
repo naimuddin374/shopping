@@ -89,7 +89,7 @@ exports.insert = async (req, res) => {
     let totalQuantity = 1;
 
     products.forEach((item) => {
-      if (item.quantity > 0) {
+      if (item.quantity > 0 && item._id) {
         pdtIds.push(item._id);
         totalQuantity = totalQuantity + item.quantity;
       }
@@ -150,31 +150,33 @@ exports.insert = async (req, res) => {
 
 // UPDATE
 exports.update = async (req, res) => {
-  // let { comment, rating } = req.body
+  // let { id, status } = req.params
 
   // // CHECK VALIDATION
   // const formField = {
-  //     "comment": comment,
-  //     "rating": rating,
+  //   "status": status,
   // }
   // const validate = validator(formField);
   // if (!validate.isValid) {
-  //     return validationError(res, validate.error);
+  //   return validationError(res, validate.error);
   // }
 
   // try {
-  //     // CHECK ID
-  //     let findData = await Review.findById(req.params.id);
-  //     if (!findData) {
-  //         return badRequest(res, null, 'Content Not Found!');
-  //     }
+  //   // CHECK ID
+  //   let findData = await Order.findById(req.params.id);
+  //   if (!findData) {
+  //     return badRequest(res, null, 'Content Not Found!');
+  //   }
 
-  //     // UPDATE DATA
-  //     await Review.findByIdAndUpdate(req.params.id, { $set: formField }, { new: true, useFindAndModify: false });
-  //     const result = await Review.findById(req.params.id).populate(['product', 'user']);
-  //     return updatedSuccess(res, result);
+  //   // UPDATE DATA
+  //   await Order.findByIdAndUpdate(req.params.id, { $set: formField }, { new: true, useFindAndModify: false });
+  //   let order = await Order.findById(req.params.id).populate("user");
+  //   let orderItem = await OrderDetail.find({ order: req.params.id }).populate(
+  //     "product"
+  //   );
+  //   return updatedSuccess(res, { order, orderItem });
   // } catch (error) {
-  //     return serverError(res, error);
+  //   return serverError(res, error);
   // }
   return updatedSuccess(res);
 };
