@@ -11,6 +11,7 @@ const {
 } = require("../utils");
 const { objectIdIsValid } = require("../utils/helper");
 const { getQueryParams } = require("../utils/query-params");
+const orderValidator = require("../validators/orderValidator");
 
 // GET LIST
 exports.list = async (req, res) => {
@@ -71,17 +72,13 @@ exports.getById = async (req, res) => {
 
 // INSERT
 exports.insert = async (req, res) => {
-  const { products, note, coupon } = req.body;
+  const { products, note, coupon, shippingAddress } = req.body;
 
   // CHECK VALIDATION
-  const formField = {
-    products: products,
-  };
-  const validate = validator(formField);
+  const validate = orderValidator(req.body);
   if (!validate.isValid) {
     return validationError(res, validate.error);
   }
-  console.log("products=", products);
 
   try {
     // FIND PRODUCT
@@ -121,6 +118,7 @@ exports.insert = async (req, res) => {
       deliveryFee: 0,
       note,
       coupon,
+      shippingAddress,
     });
     let result = await schema.save();
 
